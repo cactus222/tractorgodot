@@ -16,12 +16,7 @@ public class Hand {
 		cardMappings[Suit.SPADES] = new List<Card>();
 		cardMappings[Suit.TRUMP] = new List<Card>();
 	}
-	public Card getHighCard(bool ignorePoints, bool ignoreTrump) {
-		//Get
-		//TODO
-		throw new System.Exception("TODO");
-		return null;
-	}
+
 	// use kings if ace is trump rank
 	public List<Card> findAcePlay(bool ignoreTrump) {
 

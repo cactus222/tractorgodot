@@ -169,7 +169,14 @@ public class IDKComputerStrategy : ComputerStrategy {
 		return bury;
 	}
 
-	private List<Card> getPlayForPlayUnit(PlayUnit playUnit, List<Card> suitCards, bool shouldPrioritizePoints, bool isTeammateWinning) {
+	// the play unit to follow
+	// should prioritize dumping points
+	// whether or not a teammate is winning
+	// should try to win
+	private List<Card> getPlayForPlayUnit(PlayUnit playUnit, List<Card> suitCards, 
+	bool shouldPrioritizePoints, 
+	bool isTeammateWinning, 
+	bool shouldTryToWin) {
 		List<Card> cardsLeft = new List<Card>(suitCards);
 		 if (playUnit.getMode() == PlayUnit.TRACTOR_MODE) {
 			 //highest to lowest
@@ -221,11 +228,14 @@ public class IDKComputerStrategy : ComputerStrategy {
 					List<Card> burnPairs = pickXCards(pairs, 1, shouldPrioritizePoints);
 					return new List<Card>(){burnPairs[0], burnPairs[0]};
 				} else {
-					//TODO better LOGIC, just beat it with next largest pair (ascending)
-					foreach (Card c in pairs) {
-						//If this card is better, use it
-						if (CardUtils.Compare(c, playUnit.getHighestCard()) == 1){
-							return new List<Card>(){c, c};
+
+					if (shouldTryToWin) {
+						//TODO better LOGIC, just beat it with next largest pair (ascending)
+						foreach (Card c in pairs) {
+							//If this card is better, use it
+							if (CardUtils.Compare(c, playUnit.getHighestCard()) == 1){
+								return new List<Card>(){c, c};
+							}
 						}
 					}
 					//all pairs too weak, just burn weakest
@@ -245,14 +255,18 @@ public class IDKComputerStrategy : ComputerStrategy {
 				//Descending
 				cardsLeft.Sort(CardUtils.getComparer());
 				
-				// beat it with next largest...
-				foreach (Card c in cardsLeft) {
-					//If this card is better, use it
-					if (CardUtils.Compare(c, playUnit.getHighestCard()) == 1){
-						return new List<Card>(){c};
+				if (shouldTryToWin) {
+					// beat it with next largest...
+					foreach (Card c in cardsLeft) {
+						//If this card is better, use it
+						if (CardUtils.Compare(c, playUnit.getHighestCard()) == 1){
+							Logger.logMessage($"BEAT {playUnit.getHighestCard()} using {c}\n");
+							return new List<Card>(){c};
+						}
 					}
 				}
 				List<Card> burn = pickXCards(cardsLeft, 1, shouldPrioritizePoints);
+				Logger.logMessage($"BURN {CardUtils.getCardListString(burn)}\n");
 				return burn;
 			}
 		} else {
@@ -328,22 +342,52 @@ public class IDKComputerStrategy : ComputerStrategy {
 		bool teamWinning = isTeammateWinning(game, comp);
 
 		if (suitCards.Count > expectedSize) {
-			List<PlayUnit> units = playType.getPlayUnits();
+			var largestPlayType = trick.GetLargestPlayType();
+			var tryToWin = true;
+
+			// if the trick is trumped already, theres no point in us trying to win at all
+			if (largestPlayType.getSuit() == Suit.TRUMP && playType.getSuit() != Suit.TRUMP) {
+				tryToWin = false;
+			}
+
+			List<PlayUnit> targetUnits = playType.getPlayUnits();
 			List<Card> outputCards = new List<Card>();
 			
-			foreach (PlayUnit unit in units) {
-				if (units.Count > 1) {  
-					Logger.logMessage($"{prioritizePts} {teamWinning} {CardUtils.getCardListString(suitCards)} hmm {CardUtils.getCardListString(outputCards)}");
-				}
-				List<Card> output = getPlayForPlayUnit(unit, suitCards, prioritizePts, teamWinning);
+			// if we want to try to win, compare our play against the strongest on suit play
+			if (tryToWin) {
+				targetUnits = largestPlayType.getPlayUnits();
+			}
+
+			foreach (PlayUnit unit in targetUnits) {
+				List<Card> output = getPlayForPlayUnit(unit, suitCards, prioritizePts, teamWinning, tryToWin);
 				outputCards.AddRange(output);
-				if (outputCards.Count == expectedSize) {
-					return outputCards;
-				}
 				foreach (Card c in outputCards) {
 					suitCards.Remove(c);
 				}
 			}
+			
+
+			// if we were prioritizing dumping cards or already didnt try to win, just return
+			if (!prioritizePts || !tryToWin) {
+				return outputCards;
+			}
+			
+			// if we lose even with our best play, lets just give up
+			if (trick.IsLargerThanCurrentPlays(outputCards)) {
+				// reset and retry
+				suitCards.AddRange(outputCards);
+				outputCards.Clear();
+
+				targetUnits = playType.getPlayUnits();
+				foreach (PlayUnit unit in targetUnits) {
+					List<Card> output = getPlayForPlayUnit(unit, suitCards, prioritizePts, teamWinning, false);
+					outputCards.AddRange(output);
+					foreach (Card c in outputCards) {
+						suitCards.Remove(c);
+					}
+				}
+			}
+			return outputCards;
 			throw new System.Exception("wdf random comp strat disjoint messed up play");
 		} else if (suitCards.Count == expectedSize) {
 			//play all suit cards
@@ -359,7 +403,6 @@ public class IDKComputerStrategy : ComputerStrategy {
 			output.AddRange(suitCards);
 			return output;
 		} else { // We're completely free from this suit, can trump or throw whatever.
-			//TODO better.
 			if (teamWinning && prioritizePts) {
 				List<Card> output = pickXCards(comp.getHand(), expectedSize, prioritizePts);
 				return output;
@@ -367,12 +410,16 @@ public class IDKComputerStrategy : ComputerStrategy {
 				//try to win?
 				if (!teamWinning && trick.getPlayersLeftToPlay().Count >= 1 && trick.getTotalPoints() >= 5) {
 					List<Card> trumpCards = comp.getHandObj().getCardsOfSuit(Suit.TRUMP);
-					List<PlayUnit> units = playType.getPlayUnits();
+					// var targetPlayType = playType;
+					var targetPlayType = trick.GetLargestPlayType();
+					// WE NEED TO COMPARE AGAINST THE LARGEST PLAY TYPE, NOT THE LEADER, SINCE OTHER PEOPLE MAY HAVE TRUMPED
+
+					List<PlayUnit> units = targetPlayType.getPlayUnits();
 					List<Card> outputCards = new List<Card>();
 					//attempt to win
-					if (trumpCards.Count >= playType.getSize()) {
+					if (trumpCards.Count >= targetPlayType.getSize()) {
 						foreach (PlayUnit unit in units) {
-							List<Card> trumpPlay = getPlayForPlayUnit(unit, trumpCards, prioritizePts, teamWinning);
+							List<Card> trumpPlay = getPlayForPlayUnit(unit, trumpCards, prioritizePts, teamWinning, true);
 							outputCards.AddRange(trumpPlay);
 							if (outputCards.Count == expectedSize) {
 								

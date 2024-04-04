@@ -110,7 +110,6 @@ public class Game {
 	public Player getPlayer(int pos) {
 		return players[pos];
 	}
-	//TODO FIX THIS
 	public Player getHumanPlayer() {
 		return players[0];
 	}
@@ -128,7 +127,7 @@ public class Game {
 	//Ret valid play or not
 	public bool receivePlay(Player player, List<Card> cards) {
 
-		Logger.logMessage($"{getPlayerIndex(player)} Attempted to Play " + cardsToString(cards));
+		// Logger.logMessage($"{getPlayerIndex(player)} Attempted to Play " + cardsToString(cards));
 		// Logger.logMessage("Player Index " + std::to_string(getPlayerIndex(player)));
 		if (turn != getPlayerIndex(player)) {
 			Logger.logMessage("Playing out of order?");
@@ -259,9 +258,6 @@ public class Game {
 		return kitty;
 	}
 
-	//TODO
-	//	int getTotalKnownAttackerPoints();
-
 
 	public int getPlayerType(Player player) {
 		if (attackers.IndexOf(player) != -1) {
@@ -295,7 +291,6 @@ public class Game {
 		if (bury.Count != KITTY_SIZE) {
 			Logger.logMessage("Invalid bury received");
 			requestKitty();
-			//TODO wdF COMP RETURN WRONG SIZE?
 			return;
 		}
 
@@ -475,7 +470,7 @@ public class Game {
 
 	private void newTrick(int starter) {
 		turn = starter;
-		currentTrick = new Trick(starter);
+		currentTrick = new Trick(this, starter);
 //        Logger.logMessage("NEW TRICK CREATED");
 //        Logger.logMessage($"islead {currentTrick.isLead()}");
 		logGameState();
@@ -519,10 +514,9 @@ public class Game {
 		//use turn
 		Player currentPlayer = getPlayer(turn);
 
-		Logger.logMessage("REQUESTING PLAY" + getPlayerIndex(currentPlayer));
+		// Logger.logMessage("REQUESTING PLAY" + getPlayerIndex(currentPlayer));
 		if (currentPlayer.getType() == Player.HUMAN) {
 			//Notify & return
-			//TODO
 			notifyEvent(GameEvents.PLAY_REQUEST);
 
 		} else {
@@ -703,10 +697,10 @@ public class Game {
 	}
 	public void logGameState() {
 		int index = 0;
-		foreach (Player player in players) {
-			Logger.logMessage($"{player.getName()}: {player.getHandMessage()} points:{player.getPoints()} type:{getPlayerType(player)} level:{player.getCurrentLevel()}");
-			index++;
-		}
+		// foreach (Player player in players) {
+		// 	Logger.logMessage($"{player.getName()}: {player.getHandMessage()} points:{player.getPoints()} type:{getPlayerType(player)} level:{player.getCurrentLevel()}");
+		// 	index++;
+		// }
 		if (state == GameState.DEAL) {
 			Logger.logMessage($"dealing, {getTrumpRank()}");
 			if (largestBid != null) {

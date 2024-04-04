@@ -94,7 +94,6 @@ public class CardUtils {
 //i dont remember what cardutiltypeis
 
 	public static List<int> getTractorIndices(int expectedTractorSize, List<Card> cards, int cardUtilType) {
-		//TODO
 
 		List<int> tractorIndices = new List<int>();
 
@@ -128,7 +127,6 @@ public class CardUtils {
 			}
 
 		}
-		//TODO fix others;
 		return tractorIndices;
 	}
 

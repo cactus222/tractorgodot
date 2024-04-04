@@ -37,7 +37,6 @@ public class Card {
 		return c.getSuit() == suit && c.getRank() == rank;
 	}
 
-	//TODO IDK?
 	public override int GetHashCode() {
 		unchecked {
 			int hash = 17;

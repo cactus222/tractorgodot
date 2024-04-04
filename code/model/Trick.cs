@@ -7,6 +7,7 @@ public class Trick {
 	//int winner;
 	private int leader;
 	private PlayType playType;
+	Game game;
 
 	public PlayType getPlayType() {
 		return playType;
@@ -94,6 +95,23 @@ public class Trick {
 
 		return bestIndex;
 	}
+
+	public PlayType GetLargestPlayType() {
+		PlayType bestPlayType = playType;
+		for (int i = 1; i < Constants.NUM_PLAYERS; i++) {
+			int index = (i + leader) % Constants.NUM_PLAYERS;
+			List<Card> playedCards = cards[index];
+			if (playedCards.Count == 0) {
+				continue;
+			}
+			if (bestPlayType.isBigger(playedCards)) {
+				bestPlayType = new PlayType(playedCards, playType);
+			}
+		}
+		
+
+		return bestPlayType;
+	}
    
 	public bool isDone() {
 		for (int i = 0; i < cards.Length; i++) {
@@ -104,14 +122,26 @@ public class Trick {
 		}
 		return true;
 	}
+	public bool IsLastToPlay() {
+		var missing = 0;
+		for (int i = 0; i < cards.Length; i++) {
+			List<Card> playersCards = cards[i];
+			if (playersCards.Count == 0) {
+				missing++;
+			}
+		}
+		return missing == 1;
+	}
+
 	public List<Card>[] getCards() {
 		return cards;
 	}
-	public Trick(int lead) {
+	public Trick(Game game, int lead) {
 		for (int i = 0; i < Constants.NUM_PLAYERS; i++) {
 			cards[i] = new List<Card>();
 		}
 		this.leader = lead;
+		this.game = game;
 	}
 
 	public int getTotalPoints() {
@@ -126,7 +156,7 @@ public class Trick {
 	public override string ToString() {
 		string str = "";
 		for (int i = 0; i < Constants.NUM_PLAYERS; i++) {
-			str = str + "Player: " + i + ": ";
+			str = str + $"{game.getPlayer(i).getName()}:";
 			foreach (Card cardsPlayed in cards[i]) {
 				str = str + cardsPlayed.ToString() + " ";
 			}
@@ -138,7 +168,7 @@ public class Trick {
 		if (playType!= null) {
 			str += $"PlayType: {playType.ToString()}\n";
 		}
-		str = str + "Value: " + getTotalPoints();
+		str = str + $"Value: {getTotalPoints()}\n";
 		return str;
 	}
 	public int getLeader() {
