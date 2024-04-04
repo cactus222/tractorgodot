@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3 uid="uid://btie6hfe4qcja"]
+
+[ext_resource type="Script" path="res://code/view/BidMenu.cs" id="1_tem63"]
+
+[node name="BidMenu" type="Node2D"]
+script = ExtResource("1_tem63")
+
+[node name="Clubs" type="Button" parent="."]
+offset_right = 8.0
+offset_bottom = 8.0
+text = "Clubs"
+
+[node name="Diamonds" type="Button" parent="."]
+offset_top = 40.0
+offset_right = 100.0
+offset_bottom = 71.0
+text = "Diamonds"
+
+[node name="Hearts" type="Button" parent="."]
+offset_top = 80.0
+offset_right = 73.0
+offset_bottom = 111.0
+text = "Hearts"
+
+[node name="Spades" type="Button" parent="."]
+offset_top = 120.0
+offset_right = 77.0
+offset_bottom = 151.0
+text = "Spades"
+
+[node name="No Trump" type="Button" parent="."]
+offset_top = 160.0
+offset_right = 86.0
+offset_bottom = 191.0
+text = "No Trump"
+
+[node name="Pass" type="Button" parent="."]
+offset_top = 200.0
+offset_right = 86.0
+offset_bottom = 231.0
+text = "Pass"
+
+[connection signal="pressed" from="Clubs" to="." method="_on_clubs_pressed"]
+[connection signal="pressed" from="Diamonds" to="." method="_on_diamonds_pressed"]
+[connection signal="pressed" from="Hearts" to="." method="_on_hearts_pressed"]
+[connection signal="pressed" from="Spades" to="." method="_on_spades_pressed"]
+[connection signal="pressed" from="No Trump" to="." method="_on_no_trump_pressed"]
+[connection signal="pressed" from="Pass" to="." method="_on_pass_pressed"]

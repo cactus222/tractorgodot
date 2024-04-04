@@ -1,0 +1,26 @@
+[gd_scene load_steps=2 format=3 uid="uid://drfrp5bovgb5f"]
+
+[ext_resource type="Script" path="res://code/view/ScoreView.cs" id="1_n43cr"]
+
+[node name="ScoreView" type="Node2D"]
+script = ExtResource("1_n43cr")
+
+[node name="ScoreData" type="RichTextLabel" parent="."]
+offset_right = 500.0
+offset_bottom = 75.0
+
+[node name="RoundData" type="RichTextLabel" parent="."]
+offset_top = 75.0
+offset_right = 500.0
+offset_bottom = 275.0
+
+[node name="LastTrickData" type="RichTextLabel" parent="."]
+offset_top = 275.0
+offset_right = 500.0
+offset_bottom = 500.0
+
+[node name="TextLog" type="RichTextLabel" parent="."]
+offset_top = 500.0
+offset_right = 500.0
+offset_bottom = 725.0
+scroll_following = true

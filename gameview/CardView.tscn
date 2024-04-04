@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://b4pbtutkpia5m"]
+
+[ext_resource type="Texture2D" uid="uid://kces883rtg0r" path="res://res/pngcards/2_of_clubs.png" id="1_pm38h"]
+[ext_resource type="Script" path="res://code/view/CardView.cs" id="1_t2s31"]
+
+[node name="TextureRect" type="TextureRect"]
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(0.33, 0.33)
+texture = ExtResource("1_pm38h")
+script = ExtResource("1_t2s31")
+
+[connection signal="gui_input" from="." to="." method="_on_gui_input"]
