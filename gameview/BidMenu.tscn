@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://btie6hfe4qcja"]
+[gd_scene load_steps=3 format=3 uid="uid://btie6hfe4qcja"]
 
 [ext_resource type="Script" path="res://code/view/BidMenu.cs" id="1_tem63"]
+[ext_resource type="Theme" uid="uid://40ri8gybyopj" path="res://themes/button.tres" id="2_mtnvh"]
 
 [node name="BidMenu" type="Node2D"]
 script = ExtResource("1_tem63")
@@ -8,36 +9,42 @@ script = ExtResource("1_tem63")
 [node name="Clubs" type="Button" parent="."]
 offset_right = 8.0
 offset_bottom = 8.0
+theme = ExtResource("2_mtnvh")
 text = "Clubs"
 
 [node name="Diamonds" type="Button" parent="."]
 offset_top = 40.0
 offset_right = 100.0
 offset_bottom = 71.0
+theme = ExtResource("2_mtnvh")
 text = "Diamonds"
 
 [node name="Hearts" type="Button" parent="."]
 offset_top = 80.0
 offset_right = 73.0
 offset_bottom = 111.0
+theme = ExtResource("2_mtnvh")
 text = "Hearts"
 
 [node name="Spades" type="Button" parent="."]
 offset_top = 120.0
 offset_right = 77.0
 offset_bottom = 151.0
+theme = ExtResource("2_mtnvh")
 text = "Spades"
 
 [node name="No Trump" type="Button" parent="."]
 offset_top = 160.0
 offset_right = 86.0
 offset_bottom = 191.0
+theme = ExtResource("2_mtnvh")
 text = "No Trump"
 
 [node name="Pass" type="Button" parent="."]
 offset_top = 200.0
 offset_right = 86.0
 offset_bottom = 231.0
+theme = ExtResource("2_mtnvh")
 text = "Pass"
 
 [connection signal="pressed" from="Clubs" to="." method="_on_clubs_pressed"]

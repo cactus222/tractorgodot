@@ -23,7 +23,7 @@ public partial class Menu : Control
 		var menuContainerHeight = 171;
 		var menuContainerWidth = 200;
 		
-		menuContainer.Position = new Vector2(winWidth/2-menuContainerWidth/2, winHeight/2-menuContainerHeight/2);
+		menuContainer.Position = new Vector2(winWidth/2-menuContainerWidth, winHeight/2-menuContainerHeight);
 		
 
 	}

@@ -76,8 +76,33 @@ public partial class MainView : Node2D, BidMenuListener, MiscMenuListener, Model
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
+	public override void _Process(double delta) {
+
+	}
+
+	// READ KEYBOARD EVENTS FOR SHORTCUTS
+	public override void _UnhandledInput(InputEvent @event)
 	{
+		if (@event is InputEventKey eventKey) {
+			if (eventKey.Pressed) {
+				if (eventKey.Keycode == Key.Escape) {
+					GetTree().Quit();
+				} else if (eventKey.Keycode == Key.Space) {
+					GameState state = game.getState();
+					if (state == GameState.PLAY) {
+						PlayPressed();
+					} else if (state == GameState.KITTY) {
+						BuryPressed();
+					} else if (state == GameState.DEAL) {
+						bidPass();
+					} else if (state == GameState.PRE_DEAL) {
+						NextPressed();
+					}  else if (state == GameState.END) {
+						NewGamePressed();
+					}
+				}
+			}
+		}
 	}
 
 	// Bid menu
