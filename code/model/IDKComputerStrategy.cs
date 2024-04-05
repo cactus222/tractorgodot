@@ -260,45 +260,98 @@ public class IDKComputerStrategy : ComputerStrategy {
 					foreach (Card c in cardsLeft) {
 						//If this card is better, use it
 						if (CardUtils.Compare(c, playUnit.getHighestCard()) == 1){
-							Logger.logMessage($"BEAT {playUnit.getHighestCard()} using {c}\n");
 							return new List<Card>(){c};
 						}
 					}
 				}
 				List<Card> burn = pickXCards(cardsLeft, 1, shouldPrioritizePoints);
-				Logger.logMessage($"BURN {CardUtils.getCardListString(burn)}\n");
 				return burn;
 			}
 		} else {
 			throw new System.Exception("??? unknown playtype in random comp strat");
 		}
 	}
+
+	// findHighDisjointPlay looks to see if we can play a disjoint hand with high cards/pairs of a suit
+	// CHEATS AND LOOKS AT OTHER PEOPLE'S HANDS
+	// if only one pair or single high card is found, will return as if nothing happened.
+	private List<Card> findHighDisjointPlay(Game game, Computer comp) {
+		foreach (Suit suit in GlobalMembers.BASIC_SUITS) {
+			List<Card> suitCards = comp.getCardsOfSuit(suit); // these will already be sorted, lets reverse and look from the top
+			suitCards.Reverse();
+			// well... we need at least 2 cards (pair + singles or single + single)
+			if (suitCards.Count >= 2) {
+				int totalPlays = 0;
+				List<Card> possibleDisjointHighCardPlays = new List<Card>();
+				List<Player> otherPlayers = game.GetOtherPlayers(comp);
+
+				// iterate over the cards from highest to lowest, check opponents to see if they can beat this pair OR single high card
+				// if they can then break out and see if we found a play with > 1 card - if so then lets play it
+				for (var i = 0; i < suitCards.Count; i++) {
+					List<Card> cardsToCheck = new List<Card>();
+					cardsToCheck.Add(suitCards[i]);
+
+					Card targetCard = suitCards[i];
+					// check if this card is a pair, if so we should handle it as a pair instead of a single
+					if (i+1 < suitCards.Count) {
+						if (suitCards[i+1].Equals(targetCard)) {
+							i++; // we need to also advance the pointer to skip this card
+							cardsToCheck.Add(suitCards[i]); // also add the second card
+						}
+					}
+
+					bool opponentHasLargerPlay = false;
+					// use the play type utils to check if others can beat this
+					PlayType playType = new PlayType(cardsToCheck);
+					// check other players to see if they can beat this play
+					foreach (Player player in otherPlayers) {
+						List<Card> targetHand = player.getCardsOfSuit(suit);
+						if (playType.hasLargerUnit(targetHand)) {
+							opponentHasLargerPlay = true;
+							break;
+						}
+					}
+					if (!opponentHasLargerPlay) {
+						totalPlays++;
+						possibleDisjointHighCardPlays.AddRange(cardsToCheck);
+					}
+				}
+				// if 2+ plays, lets do it
+				if (totalPlays >= 2) {
+					return possibleDisjointHighCardPlays;
+				}
+			}
+		}
+		return new List<Card>();
+	}
 			  
-	//TODO
 	public List<Card> generateMove(Game game, Computer comp) {
 		//Generate all moves
 		Trick trick = game.getCurrentTrick();
 
 		//if leading, just pick a random single
-		//TODO
 		if (trick.isLead()) {
 			Hand hand = comp.getHandObj();
-	// // 			//TODO ADD DISJOINT
 			List<Card> tractors = hand.findTractorPlay(false);
 			if (tractors.Count > 0) {
 				return tractors;
 			}
 
+			List<Card> highDisjoint = findHighDisjointPlay(game, comp);
+			if (highDisjoint.Count > 0) {
+				return highDisjoint;
+			} 
+
 			List<Card> aces = hand.findAcePlay(true);
 			if (aces.Count > 0) {
 				return aces;
 			}
-
 			//Pairs >= 8, TODO better
 			List<Card> highPairs = hand.findHighPairPlay(true, Rank.EIGHT);
 			if (highPairs.Count > 0) {
 				return highPairs;
 			}
+
 			List<Card> trumpPairs = hand.findHighPairPlay(false, Rank.EIGHT);
 			if (trumpPairs.Count > 0) {
 				return trumpPairs;
@@ -522,27 +575,9 @@ public class IDKComputerStrategy : ComputerStrategy {
 		if (cards.Count < count) {
 			throw new System.Exception("wdf picking more cards than in set");
 		}
-		string presort = "";
-		foreach (Card card in cards) {
-			presort += card.ToString() + " ";
-		}
-
 		List<Card> copy = new List<Card>(cards);
 		copy.Sort(new BurnCardComparator(prioritizePoints));
-
-		var	res = copy.Take(count).ToList();
-		
-		string msg = "";
-		foreach (Card card in copy) {
-			msg += card.ToString() + " ";
-		}
-		string resmsg = "";
-		foreach (Card card in res) {
-			resmsg += card.ToString() + " ";
-		}
-
-		
-		Logger.logMessage($"BURNCOUNT:{count}\nRES:{resmsg}\nCOPY:{msg}\nPRIORITIZE:{prioritizePoints}\nPRESORT:{presort}\n");
+		var	res = copy.Take(count).ToList();	
 		return res;
 	}
 	//Prioritizes points, 10 K 5, 3 ... A

@@ -12,6 +12,7 @@ public partial class HandView : Node2D, CardObserver
 	List<CardView> cardViews;
 	List<Card> cards;
 	HashSet<int> selectedIndices;
+	bool selectable;
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -92,6 +93,9 @@ public partial class HandView : Node2D, CardObserver
 	
 	// a card in this hand was clicked
 	public void NotifyClicked(CardView c) {
+		if (!selectable) {
+			return;
+		}
 		int index = this.cardViews.IndexOf(c);
 		if (index >= 0) {
 			if (selectedIndices.Contains(index)) {
@@ -120,5 +124,9 @@ public partial class HandView : Node2D, CardObserver
 			selectedCards.Add(cardViews[index].GetCard());
 		}
 		return selectedCards;
+	}
+	
+	public void SetSelectable(bool b) {
+		selectable = b;
 	}
 }

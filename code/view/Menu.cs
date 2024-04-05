@@ -12,6 +12,20 @@ public partial class Menu : Control
 		seedInput = GetNode<LineEdit>("MarginContainer/VBoxContainer/SeedInput");
 		bidDelay = GetNode<LineEdit>("MarginContainer/VBoxContainer/BidDelay");
 		trickDelay = GetNode<LineEdit>("MarginContainer/VBoxContainer/TrickDelay");
+		
+		
+		var winHeight = (int)GetViewport().GetVisibleRect().Size.Y;
+		var winWidth = (int)GetViewport().GetVisibleRect().Size.X;
+		
+		var menuContainer = GetNode<MarginContainer>("MarginContainer");
+		
+		// TODO how do i find out what the size is from code?...
+		var menuContainerHeight = 171;
+		var menuContainerWidth = 200;
+		
+		menuContainer.Position = new Vector2(winWidth/2-menuContainerWidth/2, winHeight/2-menuContainerHeight/2);
+		
+
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -32,11 +46,19 @@ public partial class Menu : Control
 		
 		var bidDelayInputString = bidDelay.Text;
 		if (float.TryParse(bidDelayInputString, out float bidDelayValue)) {
+			// dont allow these values too low, or else its literally impossible to read
+			// also i think it triggers bugs...?...
+			if (bidDelayValue < 0.1f) {
+				bidDelayValue = 0.1f;
+			}
 			ViewSettings.SetBidDelay(bidDelayValue);
 		}
 
 		var trickDelayInputString = trickDelay.Text;
 		if (float.TryParse(trickDelayInputString, out float trickDelayValue)) {
+			if (trickDelayValue < 0.1f) {
+				trickDelayValue = 0.1f;
+			}
 			ViewSettings.SetTrickDelay(trickDelayValue);
 		}
 

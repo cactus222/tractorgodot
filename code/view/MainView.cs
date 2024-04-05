@@ -25,7 +25,8 @@ public partial class MainView : Node2D, BidMenuListener, MiscMenuListener, Model
 		var handScene = GD.Load<PackedScene>("res://gameview/HandView.tscn");
 		var instance = handScene.Instantiate();
 		AddChild(instance);
-		handView = (HandView)instance; 
+		handView = (HandView)instance;
+		handView.SetSelectable(true);
 		
 		var bidScene = GD.Load<PackedScene>("res://gameview/BidMenu.tscn");
 		var bidInstance = bidScene.Instantiate();

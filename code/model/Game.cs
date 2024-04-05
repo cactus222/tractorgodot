@@ -114,6 +114,17 @@ public class Game {
 		return players[0];
 	}
 
+	// GetOtherPlayers fetches all other players besides the provided player
+	public List<Player> GetOtherPlayers(Player excludePlayer) {
+		List<Player> res = new List<Player>();
+		foreach (Player player in players) {
+			if (player != excludePlayer) {
+				res.Add(player);
+			}
+		}
+		return res;
+	}
+
 	public Player getCurrentPlayer() {
 		if (state == GameState.DEAL) {
 			return players[currentDeal];
